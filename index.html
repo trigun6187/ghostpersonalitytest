@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghost Personality Test — IPIP Big Five</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== INTRO SCREEN ===== -->
+  <section id="intro" class="screen active">
+    <div class="container">
+      <div class="logo">👻</div>
+      <h1>Ghost Personality Test</h1>
+      <p class="subtitle">Discover your Big Five personality profile</p>
+      <div class="intro-card">
+        <p>Answer <strong>50 questions</strong> about yourself — takes about <strong>5–8 minutes</strong>.</p>
+        <p>Rate each statement on how accurately it describes you, from <em>Very Inaccurate</em> to <em>Very Accurate</em>.</p>
+        <div class="trait-preview">
+          <span>🧠 Openness</span>
+          <span>📋 Conscientiousness</span>
+          <span>🎉 Extraversion</span>
+          <span>💚 Agreeableness</span>
+          <span>🌊 Neuroticism</span>
+        </div>
+        <button id="startBtn" class="btn-primary">Start Test →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEST SCREEN ===== -->
+  <section id="test" class="screen">
+    <div class="container">
+      <div class="progress-header">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <span id="progressText">1 / 50</span>
+      </div>
+
+      <div id="questionCard" class="question-card">
+        <div class="question-number" id="qNum">Question 1</div>
+        <p class="question-text" id="qText">I am the life of the party.</p>
+
+        <div class="likert">
+          <button class="likert-btn" data-val="1">Very<br>Inaccurate</button>
+          <button class="likert-btn" data-val="2">Moderately<br>Inaccurate</button>
+          <button class="likert-btn" data-val="3">Neither</button>
+          <button class="likert-btn" data-val="4">Moderately<br>Accurate</button>
+          <button class="likert-btn" data-val="5">Very<br>Accurate</button>
+        </div>
+
+        <div class="nav-buttons">
+          <button id="prevBtn" class="btn-secondary">← Back</button>
+          <button id="nextBtn" class="btn-primary" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RESULTS SCREEN ===== -->
+  <section id="results" class="screen">
+    <div class="container">
+      <div class="logo">👻</div>
+      <h1>Your Personality Profile</h1>
+      <p class="subtitle">Based on the IPIP Big Five 50-Item Scale</p>
+
+      <div id="resultsGrid" class="results-grid"></div>
+
+      <div class="chart-container">
+        <canvas id="radarChart" width="400" height="400"></canvas>
+      </div>
+
+      <div id="traitDescriptions" class="trait-descriptions"></div>
+
+      <button id="restartBtn" class="btn-secondary">Take Test Again</button>
+      <p class="disclaimer">This test is based on Goldberg's IPIP Big Five Factor Markers. For educational & entertainment purposes only.</p>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
