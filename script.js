@@ -370,10 +370,9 @@ function generateCard() {
   const ctx = cvs.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  // System fonts — reliable on canvas
   const font = 'Arial, Helvetica, sans-serif';
 
-  // --- Background: deep gradient with radial glow ---
+  // --- Background ---
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#0f0c29');
   grad.addColorStop(0.4, '#2a2350');
@@ -381,15 +380,15 @@ function generateCard() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // Subtle radial glow behind center
-  const glow = ctx.createRadialGradient(W / 2, 260, 20, W / 2, 260, 420);
-  glow.addColorStop(0, 'rgba(168,85,247,0.08)');
-  glow.addColorStop(0.5, 'rgba(168,85,247,0.04)');
+  // Radial glow
+  const glow = ctx.createRadialGradient(W / 2, 230, 20, W / 2, 230, 380);
+  glow.addColorStop(0, 'rgba(168,85,247,0.07)');
+  glow.addColorStop(0.5, 'rgba(168,85,247,0.03)');
   glow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
-  // --- Top accent gradient line ---
+  // Top accent gradient bar
   const accentGrad = ctx.createLinearGradient(0, 0, W, 0);
   accentGrad.addColorStop(0, '#a855f7');
   accentGrad.addColorStop(0.3, '#818cf8');
@@ -398,43 +397,40 @@ function generateCard() {
   ctx.fillStyle = accentGrad;
   ctx.fillRect(0, 0, W, 5);
 
-  // --- Top-right brand watermark ---
+  // Top-right brand
   ctx.textAlign = 'right';
   ctx.textBaseline = 'top';
-  ctx.font = `600 13px ${font}`;
+  ctx.font = `600 12px ${font}`;
   ctx.fillStyle = 'rgba(168,85,247,0.25)';
-  ctx.fillText('👻 Ghost Personality Test', W - 36, 22);
+  ctx.fillText('👻 Ghost Personality Test', W - 32, 20);
 
-  // ===== HERO SECTION =====
-  const heroY = 100;
-
-  // Big ghost icon
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.font = `90px ${font}`;
-  ctx.fillText('👻', W / 2, heroY);
-
-  // Name
+  // ===== COMPACT HERO =====
   const displayName = (userName || '').toUpperCase();
   const nameLine = displayName || 'YOU';
   const displayNameNice = userName || 'You';
-  ctx.font = `bold 52px ${font}`;
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  // Ghost icon - smaller
+  ctx.font = `60px ${font}`;
+  ctx.fillText('👻', W / 2, 60);
+
+  // Name
+  ctx.font = `bold 38px ${font}`;
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(nameLine, W / 2, heroY + 104);
+  ctx.fillText(nameLine, W / 2, 130);
 
   // Archetype pill badge
   const tagline = getArchetypeTagline();
-  const badgeY = heroY + 170;
-  ctx.font = `600 24px ${font}`;
-
-  // Measure and draw pill bg
+  const badgeY = 180;
+  ctx.font = `600 18px ${font}`;
   const badgeMetrics = ctx.measureText(tagline);
-  const badgePad = 28;
+  const badgePad = 24;
   const badgeW = badgeMetrics.width + badgePad * 2;
-  const badgeH = 48;
+  const badgeH = 38;
   const badgeX = (W - badgeW) / 2;
 
-  // Pill with gradient border
   ctx.fillStyle = 'rgba(168,85,247,0.12)';
   ctx.beginPath();
   ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 99);
@@ -446,22 +442,20 @@ function generateCard() {
   ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 99);
   ctx.stroke();
 
-  // Gradient text inside pill
   const tagGrad = ctx.createLinearGradient(badgeX, 0, badgeX + badgeW, 0);
   tagGrad.addColorStop(0, '#c084fc');
   tagGrad.addColorStop(0.5, '#a78bfa');
   tagGrad.addColorStop(1, '#818cf8');
   ctx.fillStyle = tagGrad;
-  ctx.fillText(tagline, W / 2, badgeY + 13);
+  ctx.fillText(tagline, W / 2, badgeY + 10);
 
-  // ===== TRAIT BARS =====
+  // ===== COMPACT BARS CARD =====
   const order = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness'];
   const colors = ['#ec4899', '#22c55e', '#3b82f6', '#ef4444', '#f59e0b'];
   const shortLabels = ['Extraversion', 'Agreeableness', 'Conscientiousness', 'Neuroticism', 'Openness'];
   const icons = ['🎉', '💚', '📋', '🌊', '🧠'];
 
-  // Glass card behind the bars
-  const cardX = 80, cardTopY = 340, cardW = 920, cardH = 365;
+  const cardX = 80, cardTopY = 240, cardW = 920, cardH = 305;
   ctx.fillStyle = 'rgba(255,255,255,0.04)';
   ctx.beginPath();
   ctx.roundRect(cardX, cardTopY, cardW, cardH, 20);
@@ -473,40 +467,40 @@ function generateCard() {
   ctx.roundRect(cardX, cardTopY, cardW, cardH, 20);
   ctx.stroke();
 
-  const barAreaX = cardX + 36;
-  const barWpx = cardW - 180;
-  const barStartY = cardTopY + 32;
-  const barGap = 61;
-  const barH = 28;
+  const barAreaX = cardX + 30;
+  const barWpx = cardW - 160;
+  const barStartY = cardTopY + 24;
+  const barGap = 52;
+  const barH = 22;
 
-  // "Your Results" label
+  // Section label
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.font = `700 12px ${font}`;
+  ctx.font = `700 11px ${font}`;
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.fillText('YOUR BIG FIVE PROFILE', barAreaX, cardTopY + 10);
+  ctx.fillText('YOUR BIG FIVE PROFILE', barAreaX, cardTopY + 8);
 
   order.forEach((key, i) => {
     const score = lastScores[key];
     const pct = Math.max(0, Math.min(100, ((score - 1) / 4) * 100));
     const y = barStartY + i * barGap;
 
-    // Icon + Label
+    // Label
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.font = `600 15px ${font}`;
+    ctx.font = `600 13px ${font}`;
     ctx.fillStyle = colors[i];
     ctx.fillText(`${icons[i]}  ${shortLabels[i]}`, barAreaX, y);
 
     // Bar track
     const trackX = barAreaX;
-    const trackY = y + 30;
+    const trackY = y + 24;
     ctx.fillStyle = 'rgba(255,255,255,0.06)';
     ctx.beginPath();
-    ctx.roundRect(trackX, trackY, barWpx, barH, 14);
+    ctx.roundRect(trackX, trackY, barWpx, barH, 11);
     ctx.fill();
 
-    // Bar fill — gradient
+    // Fill
     const fillW = Math.max(3, (pct / 100) * barWpx);
     const barFillGrad = ctx.createLinearGradient(trackX, 0, trackX + fillW, 0);
     barFillGrad.addColorStop(0, colors[i]);
@@ -514,27 +508,25 @@ function generateCard() {
     barFillGrad.addColorStop(1, colors[i] + 'aa');
     ctx.fillStyle = barFillGrad;
     ctx.beginPath();
-    ctx.roundRect(trackX, trackY, fillW, barH, 14);
+    ctx.roundRect(trackX, trackY, fillW, barH, 11);
     ctx.fill();
 
-    // Subtle inner highlight
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    // Inner highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
     ctx.beginPath();
-    ctx.roundRect(trackX, trackY, Math.max(4, fillW - 6), 4, 2);
+    ctx.roundRect(trackX, trackY, Math.max(3, fillW - 5), 3, 1.5);
     ctx.fill();
 
-    // Score badge
-    const scoreX = trackX + barWpx + 16;
-    ctx.font = `bold 22px ${font}`;
+    // Score
+    const scoreX = trackX + barWpx + 14;
+    ctx.font = `bold 19px ${font}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(score.toFixed(1), scoreX, trackY + 2);
+    ctx.fillText(score.toFixed(1), scoreX, trackY + 1);
   });
 
-  // ===== SUMMARY LINE =====
-  const summaryY = 740;
-
+  // ===== RICH PERSONALITY SUMMARY =====
   const sorted = order.map(k => ({ key: k, val: lastScores[k], ...FACTORS[k] })).sort((a, b) => b.val - a.val);
   const top = sorted[0];
   const second = sorted[1];
@@ -549,49 +541,89 @@ function generateCard() {
 
   const tLab = top.val >= 3.5 ? 'high' : top.val <= 2.5 ? 'low' : null;
   const sLab = second.val >= 3.5 ? 'high' : second.val <= 2.5 ? 'low' : null;
-
-  // FIX: handle "You are" vs "[Name] is"
   const verb = displayNameNice === 'You' ? 'are' : 'is';
 
-  let summaryText;
+  // --- Bold personality motto ---
+  const motto = getCardMotto(sorted);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.font = `700 26px ${font}`;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(motto, W / 2, 585);
+
+  // --- Description: two sentences ---
+  let desc1 = '', desc2 = '';
+
   if (tLab && sLab) {
-    summaryText = `${displayNameNice} ${verb} ${traitAdj[top.key][tLab]} in ${top.label.toLowerCase()}, combined with being ${traitAdj[second.key][sLab]} in ${second.label.toLowerCase()}.`;
+    desc1 = `${displayNameNice} ${verb} ${traitAdj[top.key][tLab]} in ${top.label.toLowerCase()}, combined with being ${traitAdj[second.key][sLab]} in ${second.label.toLowerCase()}.`;
+    // Generate second sentence from archetype combo
+    const topKeys = sorted.slice(0, 2).filter(t => t.val >= 3).map(t => t.key);
+    if (topKeys.length >= 2) {
+      const comboMap = {
+        'extraversion,openness': ['brings social energy to every new idea', 'adventure you chase'],
+        'agreeableness,conscientiousness': ['shows up for others with both reliability', 'and genuine care'],
+        'conscientiousness,extraversion': ['brings both social drive and disciplined follow-through', 'to everything you do'],
+        'neuroticism,openness': ['turns deep emotions into creative fuel', 'and original thinking'],
+        'agreeableness,neuroticism': ['feels other people\'s pain as their own', 'and cares deeply'],
+        'extraversion,neuroticism': ['wears their heart on their sleeve', 'isn\'t afraid to let people see the real them'],
+        'agreeableness,openness': ['combines genuine warmth with an open', 'and curious mind']
+      };
+      const sortedKeys = topKeys.slice(0, 2).sort();
+      const combo = comboMap[sortedKeys.join(',')];
+      if (combo) {
+        desc2 = `This means you ${combo[0]} and ${combo[1]}.`;
+      } else {
+        desc2 = `These qualities work together to shape the way you navigate the world.`;
+      }
+    }
   } else if (tLab) {
-    summaryText = `${displayNameNice} ${verb} primarily ${top.label.toLowerCase()} — ${traitAdj[top.key][tLab]}.`;
+    desc1 = `${displayNameNice} ${verb} primarily ${top.label.toLowerCase()} — ${traitAdj[top.key][tLab]}.`;
+    desc2 = `This ${top.label.toLowerCase()} is the lens through which you experience most of life.`;
   } else {
-    summaryText = `${displayNameNice} ${verb} balanced — adaptable and versatile across all five traits.`;
+    // All moderate
+    desc1 = `${displayNameNice} ${verb} balanced across all five personality traits.`;
+    desc2 = `You have the flexibility to draw on different parts of your personality depending on what the situation calls for.`;
+  }
+
+  if (!desc2) {
+    desc2 = `This unique combination of traits makes you who you ${verb}.`;
   }
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.font = `500 19px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.fillText(summaryText, W / 2, summaryY);
+
+  ctx.font = `500 18px ${font}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText(desc1, W / 2, 622);
+
+  ctx.font = `500 18px ${font}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillText(desc2, W / 2, 654);
 
   // ===== FOOTER =====
   ctx.strokeStyle = 'rgba(168,85,247,0.08)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(300, 790);
-  ctx.lineTo(W - 300, 790);
+  ctx.moveTo(300, 720);
+  ctx.lineTo(W - 300, 720);
   ctx.stroke();
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.font = `500 12px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 808);
+  ctx.font = `500 11px ${font}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 740);
 
-  ctx.font = `700 16px ${font}`;
-  ctx.fillStyle = 'rgba(168,85,247,0.4)';
-  ctx.fillText('#GhostPersonalityTest', W / 2, 835);
+  ctx.font = `700 15px ${font}`;
+  ctx.fillStyle = 'rgba(168,85,247,0.35)';
+  ctx.fillText('#GhostPersonalityTest', W / 2, 765);
 
-  // --- Subtle bottom gradient cap ---
-  const capGrad = ctx.createLinearGradient(0, H - 6, 0, H);
+  // Bottom cap
+  const capGrad = ctx.createLinearGradient(0, H - 5, 0, H);
   capGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  capGrad.addColorStop(1, 'rgba(168,85,247,0.05)');
+  capGrad.addColorStop(1, 'rgba(168,85,247,0.04)');
   ctx.fillStyle = capGrad;
-  ctx.fillRect(0, H - 6, W, 6);
+  ctx.fillRect(0, H - 5, W, 5);
 
   // --- Download ---
   const link = document.createElement('a');
@@ -601,6 +633,28 @@ function generateCard() {
 
   downloadBtn.textContent = '📸 Download for Instagram';
   downloadBtn.disabled = false;
+}
+
+function getCardMotto(sorted) {
+  if (!sorted || sorted.length === 0) return 'Discover yourself.';
+  const top = sorted[0];
+  const mottos = {
+    extraversion: { high: 'Energy that lights up every room.', low: 'Your inner world is your power.' },
+    agreeableness: { high: 'Leading with empathy and heart.', low: 'Honest, direct, and unapologetically real.' },
+    conscientiousness: { high: 'Built different. Built reliable.', low: 'Flexibility is your superpower.' },
+    neuroticism: { high: 'Feel it all. That\'s your gift.', low: 'Calm under any pressure.' },
+    openness: { high: 'Always exploring. Never bored.', low: 'Grounded in what\'s real and true.' }
+  };
+  const val = top.val >= 3.5 ? 'high' : top.val <= 2.5 ? 'low' : null;
+  if (val && mottos[top.key] && mottos[top.key][val]) return mottos[top.key][val];
+
+  // Secondary fallback
+  if (sorted.length >= 2 && sorted[1]) {
+    const s = sorted[1];
+    const sVal = s.val >= 3.5 ? 'high' : s.val <= 2.5 ? 'low' : null;
+    if (sVal && mottos[s.key] && mottos[s.key][sVal]) return mottos[s.key][sVal];
+  }
+  return 'A unique mix of everything.';
 }
 
 function getArchetypeTagline() {
