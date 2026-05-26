@@ -372,265 +372,209 @@ function generateCard() {
 
   const font = 'Arial, Helvetica, sans-serif';
 
-  // --- Background ---
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, '#0f0c29');
-  grad.addColorStop(0.4, '#2a2350');
-  grad.addColorStop(1, '#12102a');
-  ctx.fillStyle = grad;
+  // ---------- helpers ----------
+  function stripHtml(s) { return s.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); }
+
+  // Word-wrap: returns array of lines
+  function wrapText(text, maxWidth, fontSize) {
+    ctx.font = `500 ${fontSize}px ${font}`;
+    const words = text.split(' ');
+    const lines = [];
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = w;
+      } else { line = test; }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  // Draw wrapped paragraphs
+  function drawParagraph(text, x, y, maxWidth, fontSize, lineHeight, color, isBold) {
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.font = `${isBold ? '600' : '500'} ${fontSize}px ${font}`;
+    ctx.fillStyle = color;
+    const lines = wrapText(text, maxWidth, fontSize);
+    lines.forEach((l, i) => { ctx.fillText(l, x, y + i * lineHeight); });
+    return y + lines.length * lineHeight + lineHeight * 0.5; // return next y
+  }
+
+  // ---------- backgrounds ----------
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#0f0c29');
+  bgGrad.addColorStop(0.5, '#2a2350');
+  bgGrad.addColorStop(1, '#12102a');
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // Radial glow
-  const glow = ctx.createRadialGradient(W / 2, 230, 20, W / 2, 230, 380);
+  const glow = ctx.createRadialGradient(W/2, 200, 20, W/2, 200, 360);
   glow.addColorStop(0, 'rgba(168,85,247,0.07)');
-  glow.addColorStop(0.5, 'rgba(168,85,247,0.03)');
   glow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
-  // Top accent gradient bar
-  const accentGrad = ctx.createLinearGradient(0, 0, W, 0);
-  accentGrad.addColorStop(0, '#a855f7');
-  accentGrad.addColorStop(0.3, '#818cf8');
-  accentGrad.addColorStop(0.7, '#c084fc');
-  accentGrad.addColorStop(1, '#a855f7');
-  ctx.fillStyle = accentGrad;
-  ctx.fillRect(0, 0, W, 5);
+  const aGrad = ctx.createLinearGradient(0, 0, W, 0);
+  aGrad.addColorStop(0, '#a855f7'); aGrad.addColorStop(0.3, '#818cf8');
+  aGrad.addColorStop(0.7, '#c084fc'); aGrad.addColorStop(1, '#a855f7');
+  ctx.fillStyle = aGrad; ctx.fillRect(0, 0, W, 5);
 
-  // Top-right brand
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'top';
-  ctx.font = `600 12px ${font}`;
-  ctx.fillStyle = 'rgba(168,85,247,0.25)';
-  ctx.fillText('👻 Ghost Personality Test', W - 32, 20);
-
-  // ===== COMPACT HERO =====
-  const displayName = (userName || '').toUpperCase();
-  const nameLine = displayName || 'YOU';
+  // ---------- compact hero ----------
+  const displayName   = (userName || '').toUpperCase() || 'YOU';
   const displayNameNice = userName || 'You';
 
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.font = `40px ${font}`; ctx.fillText('👻', W/2, 28);
+  ctx.font = `bold 24px ${font}`; ctx.fillStyle = '#fff';
+  ctx.fillText(displayName, W/2, 72);
 
-  // Ghost icon - smaller
-  ctx.font = `60px ${font}`;
-  ctx.fillText('👻', W / 2, 60);
-
-  // Name
-  ctx.font = `bold 38px ${font}`;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(nameLine, W / 2, 130);
-
-  // Archetype pill badge
   const tagline = getArchetypeTagline();
-  const badgeY = 180;
-  ctx.font = `600 18px ${font}`;
-  const badgeMetrics = ctx.measureText(tagline);
-  const badgePad = 24;
-  const badgeW = badgeMetrics.width + badgePad * 2;
-  const badgeH = 38;
-  const badgeX = (W - badgeW) / 2;
-
+  ctx.font = `600 13px ${font}`;
+  const bw = ctx.measureText(tagline).width + 36;
   ctx.fillStyle = 'rgba(168,85,247,0.12)';
-  ctx.beginPath();
-  ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 99);
-  ctx.fill();
+  ctx.beginPath(); ctx.roundRect((W-bw)/2, 105, bw, 30, 99); ctx.fill();
+  ctx.strokeStyle = 'rgba(168,85,247,0.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect((W-bw)/2, 105, bw, 30, 99); ctx.stroke();
+  const tg = ctx.createLinearGradient((W-bw)/2, 0, (W+bw)/2, 0);
+  tg.addColorStop(0,'#c084fc'); tg.addColorStop(1,'#818cf8');
+  ctx.fillStyle = tg; ctx.fillText(tagline, W/2, 113);
 
-  ctx.strokeStyle = 'rgba(168,85,247,0.3)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 99);
-  ctx.stroke();
+  // brand top-right
+  ctx.textAlign = 'right'; ctx.font = `600 11px ${font}`;
+  ctx.fillStyle = 'rgba(168,85,247,0.22)'; ctx.fillText('👻 Ghost Personality Test', W-30, 18);
 
-  const tagGrad = ctx.createLinearGradient(badgeX, 0, badgeX + badgeW, 0);
-  tagGrad.addColorStop(0, '#c084fc');
-  tagGrad.addColorStop(0.5, '#a78bfa');
-  tagGrad.addColorStop(1, '#818cf8');
-  ctx.fillStyle = tagGrad;
-  ctx.fillText(tagline, W / 2, badgeY + 10);
+  // ---------- bars card (compact) ----------
+  const order = ['extraversion','agreeableness','conscientiousness','neuroticism','openness'];
+  const colors = ['#ec4899','#22c55e','#3b82f6','#ef4444','#f59e0b'];
+  const labels = ['Extraversion','Agreeableness','Conscientiousness','Neuroticism','Openness'];
+  const icons  = ['🎉','💚','📋','🌊','🧠'];
 
-  // ===== COMPACT BARS CARD =====
-  const order = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness'];
-  const colors = ['#ec4899', '#22c55e', '#3b82f6', '#ef4444', '#f59e0b'];
-  const shortLabels = ['Extraversion', 'Agreeableness', 'Conscientiousness', 'Neuroticism', 'Openness'];
-  const icons = ['🎉', '💚', '📋', '🌊', '🧠'];
-
-  const cardX = 80, cardTopY = 240, cardW = 920, cardH = 305;
+  const cardX = 70, cardW = 940, cardTopY = 155, cardH = 195;
   ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  ctx.beginPath();
-  ctx.roundRect(cardX, cardTopY, cardW, cardH, 20);
-  ctx.fill();
+  ctx.beginPath(); ctx.roundRect(cardX, cardTopY, cardW, cardH, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(cardX, cardTopY, cardW, cardH, 16); ctx.stroke();
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(cardX, cardTopY, cardW, cardH, 20);
-  ctx.stroke();
+  const bx = cardX + 24, barW = cardW - 130, barGap = 34, barH = 16, barStart = cardTopY + 20;
 
-  const barAreaX = cardX + 30;
-  const barWpx = cardW - 160;
-  const barStartY = cardTopY + 24;
-  const barGap = 52;
-  const barH = 22;
-
-  // Section label
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.font = `700 11px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.fillText('YOUR BIG FIVE PROFILE', barAreaX, cardTopY + 8);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.font = `700 10px ${font}`; ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fillText('BIG FIVE PROFILE', bx, cardTopY + 6);
 
   order.forEach((key, i) => {
     const score = lastScores[key];
-    const pct = Math.max(0, Math.min(100, ((score - 1) / 4) * 100));
-    const y = barStartY + i * barGap;
-
-    // Label
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.font = `600 13px ${font}`;
-    ctx.fillStyle = colors[i];
-    ctx.fillText(`${icons[i]}  ${shortLabels[i]}`, barAreaX, y);
-
-    // Bar track
-    const trackX = barAreaX;
-    const trackY = y + 24;
+    const pct = Math.max(0, Math.min(100, ((score-1)/4)*100));
+    const y = barStart + i * barGap;
+    ctx.font = `600 11px ${font}`; ctx.fillStyle = colors[i];
+    ctx.fillText(`${icons[i]} ${labels[i]}`, bx, y);
+    const ty = y + 18;
     ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.beginPath();
-    ctx.roundRect(trackX, trackY, barWpx, barH, 11);
-    ctx.fill();
-
-    // Fill
-    const fillW = Math.max(3, (pct / 100) * barWpx);
-    const barFillGrad = ctx.createLinearGradient(trackX, 0, trackX + fillW, 0);
-    barFillGrad.addColorStop(0, colors[i]);
-    barFillGrad.addColorStop(0.75, colors[i]);
-    barFillGrad.addColorStop(1, colors[i] + 'aa');
-    ctx.fillStyle = barFillGrad;
-    ctx.beginPath();
-    ctx.roundRect(trackX, trackY, fillW, barH, 11);
-    ctx.fill();
-
-    // Inner highlight
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.roundRect(trackX, trackY, Math.max(3, fillW - 5), 3, 1.5);
-    ctx.fill();
-
-    // Score
-    const scoreX = trackX + barWpx + 14;
-    ctx.font = `bold 19px ${font}`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(score.toFixed(1), scoreX, trackY + 1);
+    ctx.beginPath(); ctx.roundRect(bx, ty, barW, barH, 8); ctx.fill();
+    const fw = Math.max(2, (pct/100) * barW);
+    const fg = ctx.createLinearGradient(bx,0,bx+fw,0);
+    fg.addColorStop(0,colors[i]); fg.addColorStop(1,colors[i]+'aa');
+    ctx.fillStyle = fg;
+    ctx.beginPath(); ctx.roundRect(bx, ty, fw, barH, 8); ctx.fill();
+    ctx.font = `bold 15px ${font}`; ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(score.toFixed(1), bx + barW + 12, ty);
   });
 
-  // ===== RICH PERSONALITY SUMMARY =====
-  const sorted = order.map(k => ({ key: k, val: lastScores[k], ...FACTORS[k] })).sort((a, b) => b.val - a.val);
-  const top = sorted[0];
-  const second = sorted[1];
-
-  const traitAdj = {
-    extraversion: { high: 'outgoing and sociable', low: 'reserved and introspective' },
-    agreeableness: { high: 'warm and cooperative', low: 'direct and candid' },
-    conscientiousness: { high: 'organized and reliable', low: 'flexible and spontaneous' },
-    neuroticism: { high: 'sensitive and perceptive', low: 'calm and resilient' },
-    openness: { high: 'curious and imaginative', low: 'practical and grounded' }
-  };
-
-  const tLab = top.val >= 3.5 ? 'high' : top.val <= 2.5 ? 'low' : null;
-  const sLab = second.val >= 3.5 ? 'high' : second.val <= 2.5 ? 'low' : null;
+  // ---------- personality story section ----------
+  const sorted = order.map(k => ({ key: k, val: lastScores[k], ...FACTORS[k] })).sort((a,b) => b.val - a.val);
   const verb = displayNameNice === 'You' ? 'are' : 'is';
 
-  // --- Bold personality motto ---
-  const motto = getCardMotto(sorted);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.font = `700 26px ${font}`;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(motto, W / 2, 585);
+  // Generate plain-text narrative (same logic as generateNarrative, no HTML)
+  function narrativePlain() {
+    const primary = sorted[0], secondary = sorted[1], lowest = sorted[4];
+    const d = t => t.val >= 3.5 ? t.high : t.val <= 2.5 ? t.low : null;
+    const pD = d(primary), sD = d(secondary), lD = d(lowest);
 
-  // --- Description: two sentences ---
-  let desc1 = '', desc2 = '';
+    let p1 = pD
+      ? `The most defining aspect of your personality is ${primary.label.toLowerCase()}. You're ${pD}`
+      : `You have a balanced personality where no single trait completely dominates — you adapt to situations rather than being locked into one mode of being.`;
 
-  if (tLab && sLab) {
-    desc1 = `${displayNameNice} ${verb} ${traitAdj[top.key][tLab]} in ${top.label.toLowerCase()}, combined with being ${traitAdj[second.key][sLab]} in ${second.label.toLowerCase()}.`;
-    // Generate second sentence from archetype combo
-    const topKeys = sorted.slice(0, 2).filter(t => t.val >= 3).map(t => t.key);
-    if (topKeys.length >= 2) {
-      const comboMap = {
-        'extraversion,openness': ['brings social energy to every new idea', 'adventure you chase'],
-        'agreeableness,conscientiousness': ['shows up for others with both reliability', 'and genuine care'],
-        'conscientiousness,extraversion': ['brings both social drive and disciplined follow-through', 'to everything you do'],
-        'neuroticism,openness': ['turns deep emotions into creative fuel', 'and original thinking'],
-        'agreeableness,neuroticism': ['feels other people\'s pain as their own', 'and cares deeply'],
-        'extraversion,neuroticism': ['wears their heart on their sleeve', 'isn\'t afraid to let people see the real them'],
-        'agreeableness,openness': ['combines genuine warmth with an open', 'and curious mind']
-      };
-      const sortedKeys = topKeys.slice(0, 2).sort();
-      const combo = comboMap[sortedKeys.join(',')];
-      if (combo) {
-        desc2 = `This means you ${combo[0]} and ${combo[1]}.`;
-      } else {
-        desc2 = `These qualities work together to shape the way you navigate the world.`;
-      }
+    let p2 = '';
+    if (sD && secondary.val >= 3 && primary.val - secondary.val < 1.5) {
+      p2 = `This is complemented by your ${secondary.label.toLowerCase()}, where you're ${sD}`;
+    } else if (lD && lowest.val <= 2.5) {
+      const m = { extraversion: 'inner life', agreeableness: 'directness', conscientiousness: 'spontaneity', neuroticism: 'emotional steadiness', openness: 'practicality' };
+      p2 = `At the same time, you're notably low in ${lowest.label.toLowerCase()}, which gives you a natural ${m[lowest.key] || lowest.label.toLowerCase()} that balances out your other qualities.`;
+    } else if (pD) {
+      p2 = `Across all traits, what makes you you is how these tendencies work together to shape the way you navigate relationships, work, and the world around you.`;
+    } else {
+      p2 = `Your scores sit in the moderate range across most traits, which means you have the flexibility to draw on different parts of your personality depending on what the situation calls for.`;
     }
-  } else if (tLab) {
-    desc1 = `${displayNameNice} ${verb} primarily ${top.label.toLowerCase()} — ${traitAdj[top.key][tLab]}.`;
-    desc2 = `This ${top.label.toLowerCase()} is the lens through which you experience most of life.`;
-  } else {
-    // All moderate
-    desc1 = `${displayNameNice} ${verb} balanced across all five personality traits.`;
-    desc2 = `You have the flexibility to draw on different parts of your personality depending on what the situation calls for.`;
+
+    const archetypes = { extraversion: ['social connector','energizer','people person'], agreeableness: ['harmonizer','caretaker','team player'], conscientiousness: ['achiever','architect','perfectionist'], neuroticism: ['deep feeler','perceptive soul','highly sensitive thinker'], openness: ['visionary','explorer','creative mind'] };
+    const topKeys = sorted.slice(0,2).filter(t => t.val >= 3).map(t => t.key);
+    let p3 = '';
+    if (topKeys.length >= 2) {
+      const a1 = archetypes[topKeys[0]][0], a2 = archetypes[topKeys[1]][1] || archetypes[topKeys[1]][0];
+      const combos = {
+        'agreeableness,conscientiousness': 'shows up for others with both reliability and genuine care.',
+        'agreeableness,neuroticism': 'feels other people\'s pain as their own and cares deeply, sometimes to a fault.',
+        'agreeableness,openness': 'combines genuine warmth with an open, curious mind.',
+        'conscientiousness,extraversion': 'brings both social drive and disciplined follow-through to everything you do.',
+        'extraversion,neuroticism': 'wears their heart on their sleeve and isn\'t afraid to let people see the real them.',
+        'extraversion,openness': 'brings social energy to every new idea and adventure you chase.',
+        'neuroticism,openness': 'turns their deep emotions into creative fuel and original thinking.'
+      };
+      const combo = combos[topKeys.slice(0,2).sort().join(',')] || 'moves through the world with a unique blend of these qualities.';
+      p3 = `In many ways, you're a ${a1} and a ${a2} — someone who ${combo}`;
+    } else if (topKeys.length === 1) {
+      p3 = `At your core, you're a ${archetypes[topKeys[0]][2]} — this is the lens through which you experience most of life.`;
+    } else {
+      p3 = `Your balanced profile means you have the rare ability to understand and connect with many different kinds of people.`;
+    }
+    return [stripHtml(p1), stripHtml(p2), stripHtml(p3)];
   }
 
-  if (!desc2) {
-    desc2 = `This unique combination of traits makes you who you ${verb}.`;
-  }
+  const [narr1, narr2, narr3] = narrativePlain();
 
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
+  // Section header
+  const sectY = cardTopY + cardH + 18;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.font = `700 11px ${font}`; ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillText('YOUR PERSONALITY STORY', cardX + 4, sectY);
 
-  ctx.font = `500 18px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText(desc1, W / 2, 622);
+  // Draw narrative paragraphs inside a glass card
+  const storyCardY = sectY + 22;
+  const storyCardH = 280;
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.beginPath(); ctx.roundRect(cardX, storyCardY, cardW, storyCardH, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(cardX, storyCardY, cardW, storyCardH, 16); ctx.stroke();
 
-  ctx.font = `500 18px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.fillText(desc2, W / 2, 654);
+  const textX = cardX + 28;
+  const textW = cardW - 56;
+  const fs = 14.5;
+  const lh = 21;
 
-  // ===== FOOTER =====
-  ctx.strokeStyle = 'rgba(168,85,247,0.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(300, 720);
-  ctx.lineTo(W - 300, 720);
-  ctx.stroke();
+  let ny = storyCardY + 18;
+  ny = drawParagraph(narr1, textX, ny, textW, fs, lh, 'rgba(255,255,255,0.65)', false);
+  ny = drawParagraph(narr2, textX, ny, textW, fs, lh, 'rgba(255,255,255,0.55)', false);
+  ny = drawParagraph(narr3, textX, ny, textW, fs, lh, 'rgba(255,255,255,0.65)', false);
 
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.font = `500 11px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 740);
+  // ---------- footer ----------
+  const fY = 830;
+  ctx.strokeStyle = 'rgba(168,85,247,0.07)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(300, fY); ctx.lineTo(W-300, fY); ctx.stroke();
 
-  ctx.font = `700 15px ${font}`;
-  ctx.fillStyle = 'rgba(168,85,247,0.35)';
-  ctx.fillText('#GhostPersonalityTest', W / 2, 765);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.font = `500 11px ${font}`; ctx.fillStyle = 'rgba(255,255,255,0.10)';
+  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W/2, fY + 18);
+  ctx.font = `700 14px ${font}`; ctx.fillStyle = 'rgba(168,85,247,0.30)';
+  ctx.fillText('#GhostPersonalityTest', W/2, fY + 40);
 
-  // Bottom cap
-  const capGrad = ctx.createLinearGradient(0, H - 5, 0, H);
-  capGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  capGrad.addColorStop(1, 'rgba(168,85,247,0.04)');
-  ctx.fillStyle = capGrad;
-  ctx.fillRect(0, H - 5, W, 5);
-
-  // --- Download ---
+  // ---------- download ----------
   const link = document.createElement('a');
   link.download = `personality-${userName || 'results'}.jpg`;
   link.href = cvs.toDataURL('image/jpeg', 0.95);
   link.click();
-
   downloadBtn.textContent = '📸 Download for Instagram';
   downloadBtn.disabled = false;
 }
