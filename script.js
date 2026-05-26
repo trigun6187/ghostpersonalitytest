@@ -370,117 +370,171 @@ function generateCard() {
   const ctx = cvs.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  // Use system fonts guaranteed to render on canvas
+  // System fonts — reliable on canvas
   const font = 'Arial, Helvetica, sans-serif';
-  const bold = `bold ${font}`;
 
-  // --- Background ---
+  // --- Background: deep gradient with radial glow ---
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#0f0c29');
-  grad.addColorStop(0.35, '#302b63');
-  grad.addColorStop(1, '#1a1730');
+  grad.addColorStop(0.4, '#2a2350');
+  grad.addColorStop(1, '#12102a');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // --- Subtle top accent line ---
-  ctx.fillStyle = '#a855f7';
-  ctx.fillRect(0, 0, W, 4);
+  // Subtle radial glow behind center
+  const glow = ctx.createRadialGradient(W / 2, 260, 20, W / 2, 260, 420);
+  glow.addColorStop(0, 'rgba(168,85,247,0.08)');
+  glow.addColorStop(0.5, 'rgba(168,85,247,0.04)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
 
-  // --- Brand ---
+  // --- Top accent gradient line ---
+  const accentGrad = ctx.createLinearGradient(0, 0, W, 0);
+  accentGrad.addColorStop(0, '#a855f7');
+  accentGrad.addColorStop(0.3, '#818cf8');
+  accentGrad.addColorStop(0.7, '#c084fc');
+  accentGrad.addColorStop(1, '#a855f7');
+  ctx.fillStyle = accentGrad;
+  ctx.fillRect(0, 0, W, 5);
+
+  // --- Top-right brand watermark ---
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.font = `600 13px ${font}`;
+  ctx.fillStyle = 'rgba(168,85,247,0.25)';
+  ctx.fillText('👻 Ghost Personality Test', W - 36, 22);
+
+  // ===== HERO SECTION =====
+  const heroY = 100;
+
+  // Big ghost icon
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.font = `500 16px ${font}`;
-  ctx.fillStyle = 'rgba(168,85,247,0.7)';
-  ctx.fillText('👻  GHOST PERSONALITY TEST', W / 2, 32);
+  ctx.font = `90px ${font}`;
+  ctx.fillText('👻', W / 2, heroY);
 
-  // --- Name ---
+  // Name
   const displayName = (userName || '').toUpperCase();
   const nameLine = displayName || 'YOU';
-  // If no name, use "You" not "YOU" for grammar
   const displayNameNice = userName || 'You';
-  ctx.font = `bold 56px ${font}`;
+  ctx.font = `bold 52px ${font}`;
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(nameLine, W / 2, 68);
+  ctx.fillText(nameLine, W / 2, heroY + 104);
 
-  // --- Archetype tagline ---
+  // Archetype pill badge
   const tagline = getArchetypeTagline();
-  ctx.font = `500 22px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.fillText(tagline, W / 2, 132);
+  const badgeY = heroY + 170;
+  ctx.font = `600 24px ${font}`;
 
-  // --- Divider ---
-  ctx.strokeStyle = 'rgba(168,85,247,0.1)';
-  ctx.lineWidth = 1;
+  // Measure and draw pill bg
+  const badgeMetrics = ctx.measureText(tagline);
+  const badgePad = 28;
+  const badgeW = badgeMetrics.width + badgePad * 2;
+  const badgeH = 48;
+  const badgeX = (W - badgeW) / 2;
+
+  // Pill with gradient border
+  ctx.fillStyle = 'rgba(168,85,247,0.12)';
   ctx.beginPath();
-  ctx.moveTo(220, 161);
-  ctx.lineTo(W - 220, 161);
+  ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 99);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(168,85,247,0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 99);
   ctx.stroke();
 
-  // --- TRAIT SCORES: Full-width bars stacked vertically ---
+  // Gradient text inside pill
+  const tagGrad = ctx.createLinearGradient(badgeX, 0, badgeX + badgeW, 0);
+  tagGrad.addColorStop(0, '#c084fc');
+  tagGrad.addColorStop(0.5, '#a78bfa');
+  tagGrad.addColorStop(1, '#818cf8');
+  ctx.fillStyle = tagGrad;
+  ctx.fillText(tagline, W / 2, badgeY + 13);
+
+  // ===== TRAIT BARS =====
   const order = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness'];
   const colors = ['#ec4899', '#22c55e', '#3b82f6', '#ef4444', '#f59e0b'];
   const shortLabels = ['Extraversion', 'Agreeableness', 'Conscientiousness', 'Neuroticism', 'Openness'];
+  const icons = ['🎉', '💚', '📋', '🌊', '🧠'];
 
-  // Center the bars
-  const barAreaW = 700;
-  const barLeftX = (W - barAreaW) / 2;
-  const labelW = 190;
-  const barStartY = 192;
-  const barGap = 60;
-  const barH = 30;
+  // Glass card behind the bars
+  const cardX = 80, cardTopY = 340, cardW = 920, cardH = 365;
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.beginPath();
+  ctx.roundRect(cardX, cardTopY, cardW, cardH, 20);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(cardX, cardTopY, cardW, cardH, 20);
+  ctx.stroke();
+
+  const barAreaX = cardX + 36;
+  const barWpx = cardW - 180;
+  const barStartY = cardTopY + 32;
+  const barGap = 61;
+  const barH = 28;
+
+  // "Your Results" label
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.font = `700 12px ${font}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillText('YOUR BIG FIVE PROFILE', barAreaX, cardTopY + 10);
 
   order.forEach((key, i) => {
     const score = lastScores[key];
     const pct = Math.max(0, Math.min(100, ((score - 1) / 4) * 100));
     const y = barStartY + i * barGap;
-    const barX = barLeftX + labelW;
-    const barWpx = barAreaW - labelW - 70; // leave room for score text
 
-    // Label
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-    ctx.font = `600 20px ${font}`;
-    ctx.fillStyle = colors[i];
-    ctx.fillText(shortLabels[i], barX - 12, y + 4);
-
-    // Bar bg
-    ctx.fillStyle = 'rgba(255,255,255,0.05)';
-    ctx.beginPath();
-    ctx.roundRect(barX, y, barWpx, barH, 15);
-    ctx.fill();
-
-    // Bar fill
-    const fillW = Math.max(3, (pct / 100) * barWpx);
-    const bg = ctx.createLinearGradient(barX, 0, barX + fillW, 0);
-    bg.addColorStop(0, colors[i]);
-    bg.addColorStop(0.7, colors[i]);
-    bg.addColorStop(1, colors[i] + '99');
-    ctx.fillStyle = bg;
-    ctx.beginPath();
-    ctx.roundRect(barX, y, fillW, barH, 15);
-    ctx.fill();
-
-    // White dot at end
-    ctx.beginPath();
-    ctx.arc(barX + fillW, y + barH / 2, 7, 0, 2 * Math.PI);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.strokeStyle = colors[i];
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    // Score number
+    // Icon + Label
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.font = `bold 26px ${font}`;
+    ctx.font = `600 15px ${font}`;
+    ctx.fillStyle = colors[i];
+    ctx.fillText(`${icons[i]}  ${shortLabels[i]}`, barAreaX, y);
+
+    // Bar track
+    const trackX = barAreaX;
+    const trackY = y + 30;
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath();
+    ctx.roundRect(trackX, trackY, barWpx, barH, 14);
+    ctx.fill();
+
+    // Bar fill — gradient
+    const fillW = Math.max(3, (pct / 100) * barWpx);
+    const barFillGrad = ctx.createLinearGradient(trackX, 0, trackX + fillW, 0);
+    barFillGrad.addColorStop(0, colors[i]);
+    barFillGrad.addColorStop(0.75, colors[i]);
+    barFillGrad.addColorStop(1, colors[i] + 'aa');
+    ctx.fillStyle = barFillGrad;
+    ctx.beginPath();
+    ctx.roundRect(trackX, trackY, fillW, barH, 14);
+    ctx.fill();
+
+    // Subtle inner highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.roundRect(trackX, trackY, Math.max(4, fillW - 6), 4, 2);
+    ctx.fill();
+
+    // Score badge
+    const scoreX = trackX + barWpx + 16;
+    ctx.font = `bold 22px ${font}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(score.toFixed(1), barX + barWpx + 14, y + 2);
+    ctx.fillText(score.toFixed(1), scoreX, trackY + 2);
   });
 
-  // --- Personality summary (replaces radar chart - cleaner) ---
-  const summaryY = 515;
+  // ===== SUMMARY LINE =====
+  const summaryY = 740;
 
-  // Build summary text
   const sorted = order.map(k => ({ key: k, val: lastScores[k], ...FACTORS[k] })).sort((a, b) => b.val - a.val);
   const top = sorted[0];
   const second = sorted[1];
@@ -496,39 +550,48 @@ function generateCard() {
   const tLab = top.val >= 3.5 ? 'high' : top.val <= 2.5 ? 'low' : null;
   const sLab = second.val >= 3.5 ? 'high' : second.val <= 2.5 ? 'low' : null;
 
+  // FIX: handle "You are" vs "[Name] is"
+  const verb = displayNameNice === 'You' ? 'are' : 'is';
+
   let summaryText;
   if (tLab && sLab) {
-    summaryText = `${displayNameNice} is ${traitAdj[top.key][tLab]} in ${top.label.toLowerCase()}, combined with being ${traitAdj[second.key][sLab]} in ${second.label.toLowerCase()}.`;
+    summaryText = `${displayNameNice} ${verb} ${traitAdj[top.key][tLab]} in ${top.label.toLowerCase()}, combined with being ${traitAdj[second.key][sLab]} in ${second.label.toLowerCase()}.`;
   } else if (tLab) {
-    summaryText = `${displayNameNice} is primarily ${top.label.toLowerCase()} — ${traitAdj[top.key][tLab]}.`;
+    summaryText = `${displayNameNice} ${verb} primarily ${top.label.toLowerCase()} — ${traitAdj[top.key][tLab]}.`;
   } else {
-    summaryText = `${displayNameNice} has a balanced personality — adaptable and versatile across all five traits.`;
+    summaryText = `${displayNameNice} ${verb} balanced — adaptable and versatile across all five traits.`;
   }
 
-  // Draw summary
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.font = `500 20px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = `500 19px ${font}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText(summaryText, W / 2, summaryY);
 
-  // --- Bottom footer ---
+  // ===== FOOTER =====
   ctx.strokeStyle = 'rgba(168,85,247,0.08)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(300, 570);
-  ctx.lineTo(W - 300, 570);
+  ctx.moveTo(300, 790);
+  ctx.lineTo(W - 300, 790);
   ctx.stroke();
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.font = `500 13px ${font}`;
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 588);
+  ctx.font = `500 12px ${font}`;
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 808);
 
-  ctx.font = `600 14px ${font}`;
-  ctx.fillStyle = 'rgba(168,85,247,0.35)';
-  ctx.fillText('#GhostPersonalityTest', W / 2, 614);
+  ctx.font = `700 16px ${font}`;
+  ctx.fillStyle = 'rgba(168,85,247,0.4)';
+  ctx.fillText('#GhostPersonalityTest', W / 2, 835);
+
+  // --- Subtle bottom gradient cap ---
+  const capGrad = ctx.createLinearGradient(0, H - 6, 0, H);
+  capGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  capGrad.addColorStop(1, 'rgba(168,85,247,0.05)');
+  ctx.fillStyle = capGrad;
+  ctx.fillRect(0, H - 6, W, 6);
 
   // --- Download ---
   const link = document.createElement('a');
