@@ -276,6 +276,43 @@ h1 {
 
 #radarChart { max-width: 100%; height: auto; }
 
+.section-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: left;
+  margin-bottom: 0.85rem;
+}
+
+/* ===== NARRATIVE ===== */
+.narrative-section {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 1.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.narrative-p {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.narrative-p:last-child { margin-bottom: 0; }
+
+.narrative-p strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.narrative-p em {
+  color: var(--accent);
+  font-style: italic;
+}
+
 /* ===== TRAIT DESCRIPTIONS ===== */
 .trait-descriptions { text-align: left; margin-bottom: 1.5rem; }
 

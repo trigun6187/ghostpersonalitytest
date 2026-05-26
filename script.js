@@ -56,67 +56,51 @@ const QUESTIONS = [
   "I am full of ideas."
 ];
 
-/* Scoring key
-   R = reverse-scored items (6 - raw)
-   Each factor: 10 items, average → 1.0–5.0
-*/
 const FACTORS = {
   extraversion: {
     label: "Extraversion",
     icon: "🎉",
     color: "#ec4899",
     items: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45],
-    reverse: [5, 15, 25, 35, 45], // 0-indexed: items 6, 16, 26, 36, 46
-    high: "Outgoing, energetic, sociable — you thrive around people.",
-    low: "Reserved, independent, thoughtful — you value your alone time."
+    reverse: [5, 15, 25, 35, 45],
+    high: "an outgoing, energetic force who draws energy from being around others. You're probably the one starting conversations, bringing people together, and feeling most alive in social settings. Your natural warmth and assertiveness make you a magnetic presence — people are drawn to your enthusiasm, and you thrive when you're in the middle of the action.",
+    low: "more of an inward-battery type — you're thoughtful, observant, and perfectly content with your own company or a small circle of trusted people. Social situations can drain you, not because you dislike them, but because your mind is busy processing, reflecting, and observing rather than performing. Your depth and independence are your superpowers, even if the world doesn't always see them."
   },
   agreeableness: {
     label: "Agreeableness",
     icon: "💚",
     color: "#22c55e",
     items: [1, 6, 11, 16, 21, 26, 31, 36, 41, 46],
-    reverse: [1, 11, 21, 31], // items 2, 12, 22, 32
-    high: "Compassionate, cooperative, trusting — you put others first.",
-    low: "Competitive, direct, skeptical — you value truth over harmony."
+    reverse: [1, 11, 21, 31],
+    high: "someone who leads with empathy and cooperation. You genuinely care about how others feel, and you go out of your way to maintain harmony and support the people around you. Trust comes naturally to you, and you believe the best in people — which makes you the friend everyone turns to when they need a listening ear or a warm heart.",
+    low: "someone who values honesty over harmony — you'd rather tell a hard truth than a comfortable lie. You're naturally skeptical, independent, and not afraid to challenge people or push back when something doesn't sit right with you. This directness can rub some people the wrong way, but it also means people always know where they stand with you, and you won't waste time on surface-level pleasantries."
   },
   conscientiousness: {
     label: "Conscientiousness",
     icon: "📋",
     color: "#3b82f6",
     items: [2, 7, 12, 17, 22, 27, 32, 37, 42, 47],
-    reverse: [7, 17, 27, 37], // items 8, 18, 28, 38
-    high: "Organized, reliable, disciplined — you get things done.",
-    low: "Spontaneous, flexible, easygoing — you go with the flow."
+    reverse: [7, 17, 27, 37],
+    high: "a planner, a finisher, someone who takes their commitments seriously. You like having a system, a schedule, a way of doing things that ensures nothing falls through the cracks. People count on you because you show up prepared and follow through — whether it's work, relationships, or personal goals, you bring a level of reliability that's rare and deeply appreciated.",
+    low: "someone who moves through life with flexibility and spontaneity. Structure and routine feel stifling to you — you'd rather adapt in the moment than lock yourself into a plan. This makes you incredibly resourceful when things go sideways (because you never expected them to go smoothly anyway), and you bring a sense of freedom and improvisation that keeps life interesting for everyone around you."
   },
   neuroticism: {
     label: "Neuroticism",
     icon: "🌊",
     color: "#ef4444",
     items: [3, 8, 13, 18, 23, 28, 33, 38, 43, 48],
-    /* Emotional Stability items: +keyed (9, 19) stay as-is
-       -keyed items reverse-scored.
-       Since we're scoring Neuroticism:
-       Items that indicate Emotional Stability (9, 19) are REVERSED for N.
-       Items that indicate Neuroticism stay as-is.
-       
-       Items 4, 14, 24, 29, 34, 39, 44, 49 → +keyed for N (as-is)
-       Items 9, 19 → -keyed for N (reverse)
-       
-       In 0-indexed: items 3 (q4), 8 (q9), 13 (q14), 18 (q19), 
-       23 (q24), 28 (q29), 33 (q34), 38 (q39), 43 (q44), 48 (q49)
-    */
-    reverse: [8, 18], // items 9, 19 — the ES +keyed items, reversed for N
-    high: "Sensitive, reactive, perceptive — you feel things deeply.",
-    low: "Calm, resilient, steady — you keep your cool under pressure."
+    reverse: [8, 18],
+    high: "someone who feels things deeply and experiences the full emotional spectrum in vivid color. You're sensitive to stress, attuned to subtle shifts in mood and environment, and your inner world is rich with thoughts and feelings that demand to be processed. This makes you deeply perceptive and emotionally intelligent — you notice what others miss — but it also means you carry a heavier emotional load day to day.",
+    low: "someone with a steady emotional core — calm, resilient, hard to rattle. Stress rolls off you in situations where others might spiral, and you have a natural ability to keep your cool and think clearly under pressure. This emotional stability makes you a grounding presence for the people around you — the one everyone looks to when things get chaotic, because you're still standing solid while the storm passes."
   },
   openness: {
     label: "Openness",
     icon: "🧠",
     color: "#f59e0b",
     items: [4, 9, 14, 19, 24, 29, 34, 39, 44, 49],
-    reverse: [9, 19, 29], // items 10, 20, 30
-    high: "Curious, creative, imaginative — you love new ideas and experiences.",
-    low: "Practical, grounded, conventional — you prefer the familiar."
+    reverse: [9, 19, 29],
+    high: "a curious soul with a restless imagination. You're drawn to new ideas, new experiences, new ways of seeing the world — routine and convention bore you. Your mind is always exploring, questioning, connecting dots that others don't see. This makes you creative and visionary, but it also means you're easily bored by the familiar and always looking for the next horizon.",
+    low: "someone who values the concrete and the proven over the abstract and the untested. You prefer things that are real, practical, and straightforward — you trust experience over theory and tradition over novelty. This groundedness makes you reliable and clear-headed in situations where others get lost in hypotheticals, and your practical wisdom is something the dreamers in your life rely on to keep their feet on the ground."
   }
 };
 
@@ -167,15 +151,12 @@ function renderQuestion() {
   qNum.textContent = `Question ${currentIndex + 1} of 50`;
   qText.textContent = QUESTIONS[currentIndex];
 
-  // Progress
   const pct = ((currentIndex + 1) / 50) * 100;
   progressFill.style.width = pct + '%';
   progressText.textContent = `${currentIndex + 1} / 50`;
 
-  // Clear selection
   likertBtns.forEach(btn => btn.classList.remove('selected'));
 
-  // Restore previous answer if exists
   const val = answers[currentIndex];
   if (val !== null) {
     likertBtns.forEach(btn => {
@@ -183,11 +164,8 @@ function renderQuestion() {
     });
   }
 
-  // Update button states
   prevBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
   updateNextButton();
-
-  // Scroll to top of question card
   document.querySelector('.question-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -200,7 +178,6 @@ likertBtns.forEach(btn => {
     btn.classList.add('selected');
     updateNextButton();
 
-    // Auto-advance after a brief delay
     setTimeout(() => {
       if (currentIndex < 49) {
         currentIndex++;
@@ -240,7 +217,6 @@ nextBtn.addEventListener('click', () => {
   }
 });
 
-// Keyboard support
 document.addEventListener('keydown', (e) => {
   if (!test.classList.contains('active')) return;
   if (e.key === 'ArrowLeft' && currentIndex > 0) {
@@ -248,7 +224,6 @@ document.addEventListener('keydown', (e) => {
   } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
     if (!nextBtn.disabled) nextBtn.click();
   }
-  // Number keys 1-5 for Likert
   const num = parseInt(e.key);
   if (num >= 1 && num <= 5) {
     likertBtns[num - 1].click();
@@ -260,16 +235,118 @@ function computeScores() {
   const scores = {};
   for (const [key, factor] of Object.entries(FACTORS)) {
     let sum = 0;
-    factor.items.forEach((itemIdx, i) => {
+    factor.items.forEach((itemIdx) => {
       let raw = answers[itemIdx];
       if (factor.reverse.includes(itemIdx)) {
-        raw = 6 - raw; // reverse
+        raw = 6 - raw;
       }
       sum += raw;
     });
-    scores[key] = sum / 10; // average 1.0–5.0
+    scores[key] = sum / 10;
   }
   return scores;
+}
+
+// ===== NARRATIVE GENERATOR =====
+function generateNarrative(scores) {
+  const order = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness'];
+  const sorted = Object.entries(scores)
+    .map(([key, val]) => ({ key, val, ...FACTORS[key] }))
+    .sort((a, b) => b.val - a.val);
+
+  const primary = sorted[0];
+  const secondary = sorted[1];
+  const lowest = sorted[4];
+
+  function desc(trait) {
+    if (trait.val >= 3.5) return trait.high;
+    if (trait.val <= 2.5) return trait.low;
+    return null;
+  }
+
+  const pDesc = desc(primary);
+  const sDesc = desc(secondary);
+  const lDesc = desc(lowest);
+
+  // Paragraph 1: The defining trait
+  let p1 = '';
+  if (pDesc) {
+    p1 = `The most defining aspect of your personality is <strong>${primary.label.toLowerCase()}</strong>. You're ${pDesc}`;
+  } else {
+    p1 = `You have a balanced personality where no single trait completely dominates — you adapt to situations rather than being locked into one mode of being.`;
+  }
+
+  // Paragraph 2: Secondary trait contrast
+  let p2 = '';
+  if (sDesc && secondary.val >= 3 && primary.val - secondary.val < 1.5) {
+    p2 = `This is complemented by your <strong>${secondary.label.toLowerCase()}</strong>, where you're ${sDesc}`;
+  } else if (lDesc && lowest.val <= 2.5) {
+    const lowKey = lowest.label.toLowerCase();
+    const relationMap = {
+      extraversion: 'inner life',
+      agreeableness: 'directness',
+      conscientiousness: 'spontaneity',
+      neuroticism: 'emotional steadiness',
+      openness: 'practicality'
+    };
+    const angle = relationMap[lowest.key] || lowKey;
+    p2 = `At the same time, you're notably low in <strong>${lowKey}</strong>, which gives you a natural ${angle} that balances out your other qualities. ${lowest.key === 'agreeableness' && pDesc ? "You're not afraid to ruffle feathers when it matters." : ''} ${lowest.key === 'conscientiousness' && pDesc ? 'You prefer to keep your options open rather than locking into rigid plans.' : ''}`;
+  } else if (pDesc) {
+    p2 = `Across all traits, what makes you <em>you</em> is how these tendencies work together to shape the way you navigate relationships, work, and the world around you.`;
+  } else {
+    p2 = `Your scores sit in the moderate range across most traits, which means you have the flexibility to draw on different parts of your personality depending on what the situation calls for. This adaptability is a strength in itself.`;
+  }
+
+  // Paragraph 3: Archetype summary
+  const archetypes = {
+    extraversion: ['social connector', 'energizer', 'people person'],
+    agreeableness: ['harmonizer', 'caretaker', 'team player'],
+    conscientiousness: ['achiever', 'architect', 'perfectionist'],
+    neuroticism: ['deep feeler', 'perceptive soul', 'highly sensitive thinker'],
+    openness: ['visionary', 'explorer', 'creative mind']
+  };
+
+  const topKeys = sorted.slice(0, 2).filter(t => t.val >= 3).map(t => t.key);
+  const bottomKeys = sorted.slice(-2).filter(t => t.val <= 2.5).map(t => t.key);
+
+  let archetypePhrase = '';
+  if (topKeys.length >= 2) {
+    const a1 = archetypes[topKeys[0]][0];
+    const a2 = archetypes[topKeys[1]][1] || archetypes[topKeys[1]][0];
+    archetypePhrase = `In many ways, you're a <strong>${a1} and a ${a2}</strong> — someone who `;
+
+    const combo = topKeys.slice(0, 2).sort();
+    if (combo.includes('extraversion') && combo.includes('openness')) {
+      archetypePhrase += 'brings social energy to every new idea and adventure you chase.';
+    } else if (combo.includes('conscientiousness') && combo.includes('agreeableness')) {
+      archetypePhrase += 'shows up for others with both reliability and genuine care.';
+    } else if (combo.includes('extraversion') && combo.includes('conscientiousness')) {
+      archetypePhrase += 'brings both social drive and disciplined follow-through to everything you do.';
+    } else if (combo.includes('openness') && combo.includes('neuroticism')) {
+      archetypePhrase += 'turns your deep emotions into creative fuel and original thinking.';
+    } else if (combo.includes('agreeableness') && combo.includes('neuroticism')) {
+      archetypePhrase += 'feels other people\'s pain as your own and cares deeply, sometimes to a fault.';
+    } else if (combo.includes('extraversion') && combo.includes('neuroticism')) {
+      archetypePhrase += 'wears their heart on their sleeve and isn\'t afraid to let people see the real them.';
+    } else if (combo.includes('agreeableness') && combo.includes('openness')) {
+      archetypePhrase += 'combines genuine warmth with an open, curious mind.';
+    } else {
+      archetypePhrase += 'moves through the world with a unique blend of these qualities.';
+    }
+  } else if (topKeys.length === 1) {
+    const a = archetypes[topKeys[0]][2];
+    archetypePhrase = `At your core, you're a <strong>${a}</strong> — this is the lens through which you experience most of life.`;
+  } else {
+    archetypePhrase = 'Your balanced profile means you have the rare ability to understand and connect with many different kinds of people, because parts of all of them live in you.';
+  }
+
+  return `
+    <div class="narrative-block">
+      <p class="narrative-p">${p1}</p>
+      <p class="narrative-p">${p2}</p>
+      <p class="narrative-p">${archetypePhrase}</p>
+    </div>
+  `;
 }
 
 // ===== RESULTS =====
@@ -277,14 +354,14 @@ function showResults() {
   showScreen(results);
   const scores = computeScores();
 
-  // Trait cards
-  resultsGrid.innerHTML = '';
   const order = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness'];
 
+  // Trait score cards
+  resultsGrid.innerHTML = '';
   order.forEach(key => {
     const f = FACTORS[key];
     const score = scores[key];
-    const pct = ((score - 1) / 4) * 100; // 1→0%, 5→100%
+    const pct = ((score - 1) / 4) * 100;
     const label = score >= 3.5 ? 'High' : score >= 2.5 ? 'Moderate' : 'Low';
 
     const card = document.createElement('div');
@@ -300,33 +377,19 @@ function showResults() {
     `;
     resultsGrid.appendChild(card);
 
-    // Animate bar after render
     requestAnimationFrame(() => {
       const bar = card.querySelector('.trait-bar-fill');
       bar.style.width = pct + '%';
     });
   });
 
-  // Trait descriptions
-  traitDescs.innerHTML = '';
-  order.forEach(key => {
-    const f = FACTORS[key];
-    const score = scores[key];
-    const desc = score >= 3.5 ? f.high : score <= 2.5 ? f.low :
-      `You show a balanced mix of both sides.`;
-    const label = score >= 3.5 ? 'High' : score <= 2.5 ? 'Low' : 'Moderate';
-
-    const div = document.createElement('div');
-    div.className = 'trait-desc-card';
-    div.innerHTML = `
-      <div class="desc-header">
-        <span class="desc-icon">${f.icon}</span>
-        <h3 style="color:${f.color}">${f.label}: ${label} (${score.toFixed(1)})</h3>
-      </div>
-      <p>${desc}</p>
-    `;
-    traitDescs.appendChild(div);
-  });
+  // Personality narrative
+  const narrative = generateNarrative(scores);
+  traitDescs.innerHTML = `
+    <div class="narrative-section">
+      ${narrative}
+    </div>
+  `;
 
   // Radar chart
   drawRadar(scores);
@@ -337,7 +400,6 @@ function drawRadar(scores) {
   const canvas = radarCanvas;
   const ctx = canvas.getContext('2d');
 
-  // Handle high-DPI
   const dpr = window.devicePixelRatio || 1;
   const size = Math.min(400, window.innerWidth - 60);
   canvas.style.width = size + 'px';
@@ -355,15 +417,14 @@ function drawRadar(scores) {
   const colors = ['#ec4899', '#22c55e', '#3b82f6', '#ef4444', '#f59e0b'];
   const n = order.length;
 
-  // Convert score (1-5) to radius distance
   function scoreToR(score) {
-    return ((score - 1) / 4) * radius; // 1→0, 5→radius
+    return ((score - 1) / 4) * radius;
   }
 
   const angleStep = (2 * Math.PI) / n;
-  const startAngle = -Math.PI / 2; // start at top
+  const startAngle = -Math.PI / 2;
 
-  // Grid circles
+  // Grid rings
   for (let ring = 1; ring <= 5; ring++) {
     const r = (ring / 5) * radius;
     ctx.beginPath();
@@ -444,7 +505,6 @@ function drawRadar(scores) {
     ctx.fillText(labels[i], x, y);
   }
 
-  // Center score labels
   ctx.font = '500 10px Inter, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
   for (let ring = 1; ring <= 4; ring++) {
