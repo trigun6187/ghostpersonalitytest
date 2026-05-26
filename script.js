@@ -362,16 +362,15 @@ downloadBtn.addEventListener('click', () => {
 });
 
 function generateCard() {
-  const W = 1080;
-  const H = 1080;
-  const dpr = 2; // render at 2x then scale down for crisp text
+  const W = 1080, H = 1080;
+  const dpr = 2;
   const cvs = document.createElement('canvas');
   cvs.width = W * dpr;
   cvs.height = H * dpr;
   const ctx = cvs.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  // --- Background gradient ---
+  // --- Background ---
   const grad = ctx.createLinearGradient(0, 0, W, H);
   grad.addColorStop(0, '#0f0c29');
   grad.addColorStop(0.5, '#302b63');
@@ -380,87 +379,90 @@ function generateCard() {
   ctx.fillRect(0, 0, W, H);
 
   // --- Subtle border ---
-  ctx.strokeStyle = 'rgba(168,85,247,0.25)';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(20, 20, W - 40, H - 40);
+  ctx.strokeStyle = 'rgba(168,85,247,0.2)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(24, 24, W - 48, H - 48);
 
-  // --- Branding top ---
+  // --- Branding header ---
   ctx.textAlign = 'center';
-  ctx.font = 'bold 22px Inter, -apple-system, sans-serif';
+  ctx.font = 'bold 20px Inter, sans-serif';
   ctx.fillStyle = '#a855f7';
-  ctx.fillText('👻  GHOST  PERSONALITY  TEST', W / 2, 70);
-  ctx.font = '15px Inter, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.fillText('IPIP Big Five 50-Item Scale', W / 2, 94);
+  ctx.fillText('👻  GHOST  PERSONALITY  TEST', W / 2, 60);
 
   // --- Name ---
   const displayName = (userName || 'You').toUpperCase();
-  ctx.font = 'bold 42px Inter, sans-serif';
+  ctx.font = 'bold 40px Inter, sans-serif';
   ctx.fillStyle = '#f0eef8';
-  ctx.fillText(displayName, W / 2, 160);
+  ctx.fillText(displayName, W / 2, 132);
 
-  // --- Thin divider ---
-  ctx.strokeStyle = 'rgba(168,85,247,0.2)';
+  // --- Divider ---
+  ctx.strokeStyle = 'rgba(168,85,247,0.15)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(140, 186);
-  ctx.lineTo(W - 140, 186);
+  ctx.moveTo(160, 152);
+  ctx.lineTo(W - 160, 152);
   ctx.stroke();
 
-  // --- Trait scores ---
+  // --- 2-COLUMN LAYOUT: Bars (left) + Radar (right) ---
   const order = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness'];
   const colors = ['#ec4899', '#22c55e', '#3b82f6', '#ef4444', '#f59e0b'];
   const shortLabels = ['Extraversion', 'Agreeableness', 'Conscientiousness', 'Neuroticism', 'Openness'];
-  const barW = 520;
-  const barH = 24;
-  const barX = 250;
-  const startY = 230;
-  const gap = 60;
+
+  // Left column: trait bars
+  const barStartX = 90;
+  const labelW = 170;
+  const barW = 340;
+  const barH = 20;
+  const barGap = 48;
+  const barStartY = 195;
 
   order.forEach((key, i) => {
     const score = lastScores[key];
     const pct = Math.max(0, Math.min(100, ((score - 1) / 4) * 100));
-    const y = startY + i * gap;
+    const y = barStartY + i * barGap;
 
     // Label
-    ctx.textAlign = 'left';
-    ctx.font = '500 20px Inter, sans-serif';
-    ctx.fillStyle = colors[i];
-    ctx.fillText(shortLabels[i], 90, y + 8);
-
-    // Score number
     ctx.textAlign = 'right';
-    ctx.font = 'bold 26px Inter, sans-serif';
+    ctx.font = '500 18px Inter, sans-serif';
+    ctx.fillStyle = colors[i];
+    ctx.fillText(shortLabels[i], barStartX + labelW - 8, y + 7);
+
+    // Score
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 22px Inter, sans-serif';
     ctx.fillStyle = '#f0eef8';
-    ctx.fillText(score.toFixed(1), barX - 14, y + 9);
+    ctx.fillText(score.toFixed(1), barStartX + labelW + barW + 10, y + 7);
 
     // Bar bg
+    const barX = barStartX + labelW;
     ctx.fillStyle = 'rgba(255,255,255,0.06)';
     ctx.beginPath();
-    ctx.roundRect(barX, y - 6, barW, barH, 12);
+    ctx.roundRect(barX, y - 5, barW, barH, 10);
     ctx.fill();
 
     // Bar fill
-    const fillW = Math.max(4, (pct / 100) * barW);
-    ctx.fillStyle = colors[i];
+    const fillW = Math.max(3, (pct / 100) * barW);
+    const grad2 = ctx.createLinearGradient(barX, 0, barX + fillW, 0);
+    grad2.addColorStop(0, colors[i]);
+    grad2.addColorStop(1, colors[i] + '99');
+    ctx.fillStyle = grad2;
     ctx.beginPath();
-    ctx.roundRect(barX, y - 6, fillW, barH, 12);
+    ctx.roundRect(barX, y - 5, fillW, barH, 10);
     ctx.fill();
 
-    // Pct label
-    ctx.textAlign = 'left';
-    ctx.font = '500 15px Inter, sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fillText(Math.round(pct) + '%', barX + barW + 12, y + 9);
+    // End dot
+    ctx.beginPath();
+    ctx.arc(barX + fillW, y + 5, 5, 0, 2 * Math.PI);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
   });
 
-  // --- Mini radar chart ---
-  const radarSize = 260;
-  const radarX = W / 2;
-  const radarY = 600;
-  const radius = radarSize * 0.38;
+  // Right column: radar chart
+  const radarX = 800;
+  const radarY = 320;
+  const radius = 110;
 
-  // Grid
+  // Grid rings
   for (let ring = 1; ring <= 5; ring++) {
     const r = (ring / 5) * radius;
     ctx.beginPath();
@@ -490,15 +492,14 @@ function generateCard() {
   ctx.beginPath();
   for (let i = 0; i <= 5; i++) {
     const idx = i % 5;
-    const key = order[idx];
-    const r = ((lastScores[key] - 1) / 4) * radius;
+    const r = ((lastScores[order[idx]] - 1) / 4) * radius;
     const angle = -Math.PI / 2 + i * (2 * Math.PI / 5);
     const x = radarX + r * Math.cos(angle);
     const y = radarY + r * Math.sin(angle);
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   }
   ctx.closePath();
-  ctx.fillStyle = 'rgba(168,85,247,0.15)';
+  ctx.fillStyle = 'rgba(168,85,247,0.12)';
   ctx.fill();
   ctx.strokeStyle = '#a855f7';
   ctx.lineWidth = 2;
@@ -506,13 +507,12 @@ function generateCard() {
 
   // Data points
   for (let i = 0; i < 5; i++) {
-    const key = order[i];
-    const r = ((lastScores[key] - 1) / 4) * radius;
+    const r = ((lastScores[order[i]] - 1) / 4) * radius;
     const angle = -Math.PI / 2 + i * (2 * Math.PI / 5);
     const x = radarX + r * Math.cos(angle);
     const y = radarY + r * Math.sin(angle);
     ctx.beginPath();
-    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    ctx.arc(x, y, 4, 0, 2 * Math.PI);
     ctx.fillStyle = colors[i];
     ctx.fill();
     ctx.strokeStyle = '#fff';
@@ -520,31 +520,46 @@ function generateCard() {
     ctx.stroke();
   }
 
-  // Radar labels
+  // Axis labels (cardinal directions only - top, right, bottom, left for readability)
+  const cardinalLabels = [
+    { label: 'Extraversion', angle: -Math.PI / 2, color: colors[0] },
+    { label: 'Agreeableness', angle: -Math.PI / 2 + 2 * Math.PI / 5, color: colors[1] },
+    { label: 'Conscientiousness', angle: -Math.PI / 2 + 4 * Math.PI / 5, color: colors[2] },
+    { label: 'Neuroticism', angle: -Math.PI / 2 + 6 * Math.PI / 5, color: colors[3] },
+    { label: 'Openness', angle: -Math.PI / 2 + 8 * Math.PI / 5, color: colors[4] }
+  ];
   ctx.textAlign = 'center';
-  ctx.font = 'bold 15px Inter, sans-serif';
-  for (let i = 0; i < 5; i++) {
-    const angle = -Math.PI / 2 + i * (2 * Math.PI / 5);
-    const lr = radius + 34;
-    ctx.fillStyle = colors[i];
-    ctx.fillText(shortLabels[i], radarX + lr * Math.cos(angle), radarY + lr * Math.sin(angle));
-  }
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 12px Inter, sans-serif';
+  cardinalLabels.forEach(({ label, angle, color }) => {
+    const lr = radius + 28;
+    ctx.fillStyle = color;
+    ctx.fillText(label, radarX + lr * Math.cos(angle), radarY + lr * Math.sin(angle));
+  });
 
-  // --- Bottom: archetype tagline ---
+  // --- Archetype banner ---
   const archetypePhrase = getArchetypeTagline();
   ctx.textAlign = 'center';
-  ctx.font = 'bold 22px Inter, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.fillText(archetypePhrase, W / 2, 780);
+  ctx.font = 'bold 26px Inter, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.fillText(archetypePhrase, W / 2, 535);
+
+  // --- Bottom divider ---
+  ctx.strokeStyle = 'rgba(168,85,247,0.1)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(200, 565);
+  ctx.lineTo(W - 200, 565);
+  ctx.stroke();
 
   // --- Footer ---
   ctx.font = '14px Inter, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 870);
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillText('🔒 No data stored · ghostpersonalitytest.com', W / 2, 595);
 
-  ctx.font = 'bold 16px Inter, sans-serif';
-  ctx.fillStyle = 'rgba(168,85,247,0.4)';
-  ctx.fillText('#GhostPersonalityTest', W / 2, 900);
+  ctx.font = 'bold 15px Inter, sans-serif';
+  ctx.fillStyle = 'rgba(168,85,247,0.35)';
+  ctx.fillText('#GhostPersonalityTest', W / 2, 624);
 
   // --- Download ---
   const link = document.createElement('a');
